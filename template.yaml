@@ -1,0 +1,181 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: |
+  Serverless implementation of the performance testing API using AWS Lambda and API Gateway.
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 3
+
+Resources:
+  ApiGateway:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: !Sub
+        - ${ResourceName} From Stack ${AWS::StackName}
+        - ResourceName: ApiGateway
+      StageName: Prod
+      DefinitionBody:
+        openapi: '3.0'
+        info: {}
+        paths:
+          /api/echo:
+            get:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${echo.Arn}/invocations
+              responses: {}
+          /api/getPrice:
+            post:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${getPrice.Arn}/invocations
+              responses: {}
+          /api/compute:
+            post:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${compute.Arn}/invocations
+              responses: {}
+          /api/parse:
+            post:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${parse.Arn}/invocations
+              responses: {}
+          /api/query:
+            get:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri: !Sub arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${query.Arn}/invocations
+              responses: {}
+      EndpointConfiguration: REGIONAL
+      TracingEnabled: true
+      Cors:
+        MaxAge: 5
+  getPrice:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: !Sub
+        - Stack ${AWS::StackName} Function ${ResourceName}
+        - ResourceName: getPrice
+      CodeUri: src/getPrice/
+      Handler: getPrice.getPriceHandler
+      Runtime: nodejs20.x
+      MemorySize: 256
+      Timeout: 30
+      Tracing: Active
+      Events:
+        ApiGatewayPOSTapigetPrice:
+          Type: Api
+          Properties:
+            Path: /api/getPrice
+            Method: POST
+            RestApiId: !Ref ApiGateway
+  getPriceLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Retain
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${getPrice}
+  compute:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: !Sub
+        - Stack ${AWS::StackName} Function ${ResourceName}
+        - ResourceName: compute
+      CodeUri: src/compute/
+      Handler: compute.computeHandler
+      Runtime: nodejs20.x
+      MemorySize: 256
+      Timeout: 30
+      Tracing: Active
+      Events:
+        ApiGatewayPOSTapicompute:
+          Type: Api
+          Properties:
+            Path: /api/compute
+            Method: POST
+            RestApiId: !Ref ApiGateway
+  computeLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Retain
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${compute}
+  parse:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: !Sub
+        - Stack ${AWS::StackName} Function ${ResourceName}
+        - ResourceName: parse
+      CodeUri: src/parse
+      Handler: parse.parseHandler
+      Runtime: nodejs20.x
+      MemorySize: 256
+      Timeout: 30
+      Tracing: Active
+      Events:
+        ApiGatewayPOSTapiparse:
+          Type: Api
+          Properties:
+            Path: /api/parse
+            Method: POST
+            RestApiId: !Ref ApiGateway
+  parseLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Retain
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${parse}
+  query:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: !Sub
+        - Stack ${AWS::StackName} Function ${ResourceName}
+        - ResourceName: query
+      CodeUri: src/query
+      Handler: query.queryHandler
+      Runtime: nodejs20.x
+      MemorySize: 256
+      Timeout: 30
+      Tracing: Active
+      Events:
+        ApiGatewayGETapiquery:
+          Type: Api
+          Properties:
+            Path: /api/query
+            Method: GET
+            RestApiId: !Ref ApiGateway
+  queryLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Retain
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${query}
+  echo:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: !Sub
+        - Stack ${AWS::StackName} Function ${ResourceName}
+        - ResourceName: echo
+      CodeUri: src/echo/
+      Handler: echo.echoHandler
+      Runtime: nodejs20.x
+      MemorySize: 256
+      Timeout: 30
+      Tracing: Active
+      Events:
+        ApiGatewayGETapiecho:
+          Type: Api
+          Properties:
+            Path: /api/echo
+            Method: GET
+            RestApiId: !Ref ApiGateway
+  echoLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Retain
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${echo}
