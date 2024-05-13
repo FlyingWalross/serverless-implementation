@@ -68,7 +68,7 @@ Resources:
       CodeUri: src/getPrice/
       Handler: getPrice.getPriceHandler
       Runtime: nodejs20.x
-      MemorySize: 256
+      MemorySize: 128
       Timeout: 30
       Tracing: Active
       Events:
@@ -92,7 +92,7 @@ Resources:
       CodeUri: src/compute/
       Handler: compute.computeHandler
       Runtime: nodejs20.x
-      MemorySize: 256
+      MemorySize: 128
       Timeout: 30
       Tracing: Active
       Events:
@@ -116,7 +116,7 @@ Resources:
       CodeUri: src/parse
       Handler: parse.parseHandler
       Runtime: nodejs20.x
-      MemorySize: 256
+      MemorySize: 128
       Timeout: 30
       Tracing: Active
       Events:
@@ -140,7 +140,7 @@ Resources:
       CodeUri: src/query
       Handler: query.queryHandler
       Runtime: nodejs20.x
-      MemorySize: 256
+      MemorySize: 128
       Timeout: 30
       Tracing: Active
       Events:
@@ -164,7 +164,7 @@ Resources:
       CodeUri: src/echo/
       Handler: echo.echoHandler
       Runtime: nodejs20.x
-      MemorySize: 256
+      MemorySize: 128
       Timeout: 30
       Tracing: Active
       Events:
